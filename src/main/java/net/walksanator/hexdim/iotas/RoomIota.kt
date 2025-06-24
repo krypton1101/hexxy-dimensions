@@ -27,7 +27,6 @@ open class RoomIota(val pay: Pair<Int,Int>,val spawnpos: Vec3d?,var permissions:
     fun getRoomValue(): Room {
         val storage = HexxyDimensions.STORAGE.get()
         val room = storage.all[pay.first]
-        room.keyCheck(pay.second)
         return room
     }
 

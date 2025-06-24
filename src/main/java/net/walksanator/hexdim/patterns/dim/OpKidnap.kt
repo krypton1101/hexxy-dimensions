@@ -17,6 +17,7 @@ import net.minecraft.world.TeleportTarget
 import net.walksanator.hexdim.HexxyDimensions
 import net.walksanator.hexdim.casting.VarMediaOutputAction
 import net.walksanator.hexdim.iotas.RoomIota
+import net.walksanator.hexdim.casting.mishap.MishapInvalidRoom
 
 
 class OpKidnap : VarMediaOutputAction {
@@ -26,6 +27,7 @@ class OpKidnap : VarMediaOutputAction {
         val mediacost: Long
         if (room !is RoomIota) {throw MishapInvalidIota(room,1,Text.translatable("hexdim.iota.roomlike"))}
         if (!(room).permissions[0]) {throw MishapInvalidIota(room,1, Text.translatable("hexdim.iota.permissions.read"))}
+        if (!room.getRoomValue().isDone) {throw MishapInvalidRoom(room.getRoomValue(), false)}
         val iota = args[1]
 
         val target: Either<EntityIota,ListIota> = when (iota.type) {
