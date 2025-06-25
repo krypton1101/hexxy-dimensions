@@ -1,5 +1,6 @@
 package net.walksanator.hexdim.casting
 
+import at.petrak.hexcasting.api.casting.ParticleSpray
 import at.petrak.hexcasting.api.casting.RenderedSpell
 import at.petrak.hexcasting.api.casting.castables.Action
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
@@ -31,18 +32,21 @@ interface VarMediaOutputAction : Action {
         repeat(argc) { stack.removeLast() }
 
         // execute!
-        val result = this.execute(args, env)
+        val spellResponse = this.execute(args, env)
 
         val sideEffects = mutableListOf<OperatorSideEffect>()
 
-        if (env.extractMedia(result.cost, true) > 0)
-            throw MishapNotEnoughMedia(result.cost)
-        if (result.cost > 0)
-            sideEffects.add(OperatorSideEffect.ConsumeMedia(result.cost))
+        if (env.extractMedia(spellResponse.cost, true) > 0)
+            throw MishapNotEnoughMedia(spellResponse.cost)
+        if (spellResponse.cost > 0)
+            sideEffects.add(OperatorSideEffect.ConsumeMedia(spellResponse.cost))
 
+        sideEffects.addAll(
+            spellResponse.particles.map { OperatorSideEffect.Particles(it) }
+        )
         sideEffects.add(
             OperatorSideEffect.AttemptSpell(
-                result, true, false
+                spellResponse, true, false
             )
         )
 
@@ -50,7 +54,7 @@ interface VarMediaOutputAction : Action {
             image.copy(stack), sideEffects, continuation, HexEvalSounds.SPELL
         )
     }
-    abstract class CastResult(val cost: Long): RenderedSpell {
+    abstract class CastResult(val cost: Long, val particles: List<ParticleSpray>): RenderedSpell {
         override fun cast(env: CastingEnvironment) {}//ignored (tf2 crit sound)
 
         /**
