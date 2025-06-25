@@ -2,7 +2,6 @@ package net.walksanator.hexdim
 
 import at.petrak.hexcasting.api.item.IotaHolderItem
 import at.petrak.hexcasting.common.items.magic.ItemMediaBattery
-import at.petrak.hexcasting.common.lib.hex.HexActions
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParseException
 import com.mojang.brigadier.arguments.IntegerArgumentType.getInteger
@@ -37,7 +36,6 @@ import net.walksanator.hexdim.util.Rectangle
 import org.slf4j.LoggerFactory
 import java.nio.file.StandardOpenOption
 import java.util.*
-import java.util.function.BiConsumer
 import kotlin.io.path.exists
 import kotlin.io.path.reader
 import kotlin.io.path.writeText
@@ -63,7 +61,7 @@ object HexxyDimensions : ModInitializer {
         logger.info("Hello Fabric world!")
 
         IotaTypes.registerTypes()
-        DimPatternRegistry.registerPatterns(bind(HexActions.REGISTRY))
+        DimPatternRegistry.registerPatterns()
 
 
         Registry.register(Registries.BLOCK, Identifier(MOD_ID, "skybox"), BlockRegistry.SKYBOX)
@@ -364,14 +362,6 @@ object HexxyDimensions : ModInitializer {
                 )
             }
         }
-    }
-
-    private fun <T> bind(registry: Registry<in T>): BiConsumer<T, Identifier> =
-        BiConsumer<T, Identifier> { t, id -> Registry.register(registry, id, t) }
-
-
-    fun modLoc(s: String): Identifier {
-        return Identifier(MOD_ID, s);
     }
 }
 
