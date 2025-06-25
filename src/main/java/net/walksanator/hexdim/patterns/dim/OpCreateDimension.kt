@@ -1,23 +1,23 @@
 package net.walksanator.hexdim.patterns.dim
 
-import at.petrak.hexcasting.api.casting.ParticleSpray
+import at.petrak.hexcasting.api.casting.RenderedSpell
+import at.petrak.hexcasting.api.casting.castables.SpellAction
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
 import at.petrak.hexcasting.api.casting.iota.DoubleIota
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.mishaps.MishapInvalidIota
 import at.petrak.hexcasting.api.misc.MediaConstants
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.walksanator.hexdim.HexxyDimensions
-import net.walksanator.hexdim.casting.VarMediaOutputAction
 import net.walksanator.hexdim.iotas.PermissionStrings
 import net.walksanator.hexdim.iotas.RoomIota
 
-class OpCreateDimension : VarMediaOutputAction {
+class OpCreateDimension : SpellAction {
     override val argc: Int = 3
 
-    override fun execute(args: List<Iota>, env: CastingEnvironment): VarMediaOutputAction.CastResult {
+    override fun execute(args: List<Iota>, env: CastingEnvironment): SpellAction.Result {
         if (args[0] is DoubleIota) {
             if (args[1] is DoubleIota) {
                 if (args[2] is DoubleIota) {
@@ -27,7 +27,11 @@ class OpCreateDimension : VarMediaOutputAction {
                     val z = (args[2] as DoubleIota).double.toInt().coerceIn(1,cfg.z_limit)
                     val cost = x*y*z*MediaConstants.QUENCHED_SHARD_UNIT/2
                     HexxyDimensions.logger.info("Allocating room %s %s %s by user".format(x,y,z, env.caster?.name))
-                    return Spell(x,y,z,cost)
+                    return SpellAction.Result(
+                        Spell(x,y,z),
+                        cost,
+                        listOf()
+                    )
                 }
                 throw MishapInvalidIota(args[2],2, Text.literal("Excepted a double"))
             }
@@ -36,8 +40,12 @@ class OpCreateDimension : VarMediaOutputAction {
         throw MishapInvalidIota(args[0],0, Text.literal("Excepted a double"))
     }
 
-    class Spell(val x: Int, val y: Int, val z: Int, c: Long) : VarMediaOutputAction.CastResult(c) {
-        override fun run(env: CastingEnvironment): List<Iota> {
+    class Spell(val x: Int, val y: Int, val z: Int) : RenderedSpell {
+        override fun cast(env: CastingEnvironment) {
+            HexxyDimensions.logger.info("Reached unreachable!")
+        }
+        override fun cast(env: CastingEnvironment, image: CastingImage): CastingImage? {
+            val stack = image.stack.toMutableList()
             val storage = HexxyDimensions.STORAGE.get()
             val room = storage.mallocRoom(Pair(x, z), y)
             val cfg = HexxyDimensions.CONFIG
@@ -50,14 +58,18 @@ class OpCreateDimension : VarMediaOutputAction {
             }
             if (room != null) {
                 val perms = List(PermissionStrings.field.size) { true }
-                return listOf(RoomIota(
+                stack.add(RoomIota(
                     Pair(storage.all.size-1,room.key!!),
                     null,
                     perms)
                 )
             }
+            else {
+                //TODO: make a mishap for failing to allocate room...
+            }
+            val result = image.copy(stack = stack)
 
-            return listOf() //TODO: make a mishap for failing to allocate room...
+            return result
         }
 
     }
