@@ -1,7 +1,7 @@
 plugins {
-	id 'fabric-loom' version '1.5-SNAPSHOT'
+	id 'fabric-loom' version '1.9-SNAPSHOT'
 	id 'maven-publish'
-  	id "org.jetbrains.kotlin.jvm" version "1.9.20"
+  	id "org.jetbrains.kotlin.jvm" version "2.0.21"
 }
 
 version = project.mod_version
@@ -81,6 +81,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-language-kotlin:1.10.17+kotlin.1.9.22"
 	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-api:${rootProject.cca_version}"
 	modImplementation "at.petra-k.paucal:paucal-fabric-${rootProject.minecraft_version}:${rootProject.paucal_version}"
+	modImplementation "com.samsthenerd.inline:inline-fabric:${rootProject.minecraft_version}-${rootProject.inline_version}"
 	modApi("me.shedaniel.cloth:cloth-config-fabric:${rootProject.clothconfig_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
