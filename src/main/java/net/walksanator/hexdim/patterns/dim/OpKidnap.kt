@@ -1,7 +1,5 @@
 package net.walksanator.hexdim.patterns.dim
 
-import at.petrak.hexcasting.api.casting.ParticleSpray
-import at.petrak.hexcasting.api.casting.castables.ConstMediaAction
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.iota.EntityIota
 import at.petrak.hexcasting.api.casting.iota.Iota
@@ -46,7 +44,7 @@ class OpKidnap : VarMediaOutputAction {
         return Spell(mediacost,room,target)
     }
 
-    class Spell(cost: Long, val room: RoomIota,val targets: Either<EntityIota, ListIota>) : VarMediaOutputAction.CastResult(cost, listOf()) {
+    class Spell(cost: Long, val room: RoomIota,val targets: Either<EntityIota, ListIota>) : VarMediaOutputAction.CastResult(cost) {
         override fun run(env: CastingEnvironment): List<Iota> {
             targets.ifRight {iota ->
                 val iotas = iota.list.filter { value -> value.type == EntityIota.TYPE }
